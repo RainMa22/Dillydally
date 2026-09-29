@@ -1,6 +1,6 @@
-# DillyDally — Customizable Handler Usage Guide
+# Dillydally — Usage Guide
 
-DillyDally is a lightweight HTTP/HTTPS server with a pluggable handler system. You assign handlers to URL paths via a JSON configuration file, and each incoming request to that path is dispatched to the configured handler.
+Dillydally is a lightweight HTTP/HTTPS server with a pluggable handler system. You assign handlers to URL paths via a JSON configuration file, and each incoming request to that path is dispatched to the configured handler.
 
 ---
 
