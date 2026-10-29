@@ -1,4 +1,4 @@
-package me.rainma22.dillydally.factory;
+package me.rainma22.dillydally.builder;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
