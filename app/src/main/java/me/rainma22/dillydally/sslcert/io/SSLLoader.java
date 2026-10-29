@@ -22,7 +22,7 @@ import me.rainma22.dillydally.conf.ConfBean;
 
 public class SSLLoader {
     private ConfBean conf;
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger();
 
     public SSLLoader(ConfBean conf) {
         this.conf = conf;
@@ -30,29 +30,13 @@ public class SSLLoader {
 
     public X509Certificate[] loadSSLCertificates() throws IOException, CertificateException {
         var sslConf = conf.getSslCertificateConf();
-        return loadSSLCertificates(Path.of(sslConf.getPathToSSLCertPEM()));
-    }
-
-    public X509Certificate[] loadSSLCertificates(Path certPath) throws IOException, CertificateException {
-        LOGGER.info("Loading ssl certificate from {}", certPath);
-        try (PEMParser parser = new PEMParser(new FileReader(certPath.toFile()))) {
-            JcaX509CertificateConverter converter = new JcaX509CertificateConverter();
-            Object obj;
-            List<X509Certificate> certList = new ArrayList<>();
-            while ((obj = parser.readObject()) != null) {
-                certList.add(converter.getCertificate((X509CertificateHolder) obj));
-            }
-            LOGGER.info("Loaded {} ssl certificate{} from {}", certList.size(),
-                    certList.size() == 1 ? "" : "s",
-                    certPath);
-            return certList.stream().toArray(X509Certificate[]::new);
-        }
+        return new CertificateLoader().loadSSLCertificates(Path.of(sslConf.getPathToSSLCertPEM()));
     }
 
     public KeyPair loadSSLKeyPair() throws IOException {
         var sslConf = conf.getSslCertificateConf();
         KeyPair kp;
-        LOGGER.info("Loading ssl keypair from {}", sslConf.getPathToSSLKeyPEM());
+        logger.info("Loading ssl keypair from {}", sslConf.getPathToSSLKeyPEM());
         try (PEMParser parser = new PEMParser(new FileReader(sslConf.getPathToSSLKeyPEM()))) {
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
             var decryptorProvider = new JcePEMDecryptorProviderBuilder()
@@ -62,7 +46,7 @@ public class SSLLoader {
             var pkp = pekp.decryptKeyPair(decryptorProvider);
             kp = converter.getKeyPair(pkp);
         }
-        LOGGER.info("Loaded ssl keypair from {}", sslConf.getPathToSSLKeyPEM());
+        logger.info("Loaded ssl keypair from {}", sslConf.getPathToSSLKeyPEM());
         return kp;
     }
 
