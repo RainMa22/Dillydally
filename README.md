@@ -1,4 +1,4 @@
-# DillyDally
+# Dillydally
 
 A configurable HTTP/HTTPS server with automatic SSL certificate renewal and a pluggable handler extension system.
 
