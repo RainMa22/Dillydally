@@ -15,6 +15,7 @@
     <Logger name="me.rainma22.dillydally.DillyDally" level="INFO"/>
     <Logger name="me.rainma22.dillydally.Server" level="INFO"/>
     <Logger name="me.rainma22.dillydally.conf.ConfBean" level="INFO"/>
+    <Logger name="me.rainma22.dillydally.handler.FileHandler" level="INFO"/>
     <Root level="WARN">
       <AppenderRef ref="CONSOLE"/>
     </Root>
