@@ -2,9 +2,6 @@ package me.rainma22.dillydally.sslcert.certificategetter.states;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpClient.Redirect;
-import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -18,9 +15,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import me.rainma22.dillydally.exceptions.DillyDallyRuntimeException;
+import me.rainma22.dillydally.factory.JoseHttpRequest;
 import me.rainma22.dillydally.sslcert.ACMEJWS;
 import me.rainma22.dillydally.sslcert.AuthChallengeResponse;
-import me.rainma22.dillydally.sslcert.JoseHttpRequest;
 import me.rainma22.dillydally.sslcert.OrderChallenge;
 import me.rainma22.dillydally.sslcert.ResponseConstants;
 import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetterContext;
