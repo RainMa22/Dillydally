@@ -54,6 +54,7 @@ public class TrustUtils {
                     .orElseThrow(() -> new DillyDallyException("No Default X509TrustManager found"));
 
             KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+            ks.load(null, null);
             int i = 0;
             for(var cert : trustManager.getAcceptedIssuers()){
                 ks.setCertificateEntry("ca-%d".formatted(i++), cert);
