@@ -23,7 +23,8 @@ public class CertificateGetterLoader {
     private ConfBean conf;
     private static final Logger LOGGER = LogManager.getLogger();
     static {
-        Security.addProvider(new BouncyCastleProvider());
+        if (Security.getProvider("BC") == null)
+            Security.addProvider(new BouncyCastleProvider());
     }
 
     public CertificateGetterLoader(ConfBean conf) {

@@ -1,4 +1,4 @@
-package me.rainma22.dillydally.sslcert;
+package me.rainma22.dillydally.util;
 
 import java.io.IOException;
 import java.security.KeyPair;
@@ -28,12 +28,13 @@ import me.rainma22.dillydally.conf.ConfBean;
 public class GenUtils {
 
     static {
-        Security.addProvider(new BouncyCastleProvider());
+        if (Security.getProvider("BC") == null)
+            Security.addProvider(new BouncyCastleProvider());
     }
 
     public static PKCS10CertificationRequest genCSR(ConfBean conf, KeyPair kp)
             throws OperatorCreationException, NoSuchAlgorithmException, IOException {
-        
+
         KeyPair keyPair = kp;
 
         // Create a PKCS10 Certification Request Builder
