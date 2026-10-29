@@ -13,10 +13,10 @@ import java.util.Map;
 import org.json.JSONObject;
 
 import me.rainma22.dillydally.sslcert.ACMEJWS;
-import me.rainma22.dillydally.sslcert.GenUtils;
 import me.rainma22.dillydally.sslcert.JoseHttpRequest;
 import me.rainma22.dillydally.sslcert.ResponseConstants;
 import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetterContext;
+import me.rainma22.dillydally.util.GenUtils;
 
 /**
  * FinalizingState

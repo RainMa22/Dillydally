@@ -22,8 +22,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import me.rainma22.dillydally.conf.ConfBean;
-import me.rainma22.dillydally.sslcert.GenUtils;
 import me.rainma22.dillydally.sslcert.io.SSLSaver;
+import me.rainma22.dillydally.util.GenUtils;
 
 /**
  *

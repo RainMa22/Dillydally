@@ -23,14 +23,14 @@ public class CertificateGetterSaver {
         this.conf = conf;
     }
 
-    public void SaveToFile( CertificateGetter cg) throws IOException {
+    public void SaveToFile(CertificateGetter cg) throws IOException {
         var acmeKeyPair = cg.getKeyPair();
         var sslConf = conf.getSslCertificateConf();
         Path acmeKeyPath = Path.of(sslConf.getPathToACMEPEM());
         LOGGER.info("Saving to Certificate getter to file {}", acmeKeyPath);
         Files.createDirectories(acmeKeyPath.getParent());
         try (var sslKeyOut = new JcaPEMWriter(new FileWriter(acmeKeyPath.toFile()))) {
-            PEMEncryptor encryptor = new JcePEMEncryptorBuilder("AES-256-CBC")
+            PEMEncryptor encryptor = new JcePEMEncryptorBuilder("AES-256-GCM")
                     .build(sslConf.getAcmePassword().toCharArray());
             sslKeyOut.writeObject(acmeKeyPair, encryptor);
         }
