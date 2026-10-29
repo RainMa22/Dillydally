@@ -12,9 +12,12 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import me.rainma22.dillydally.exceptions.DillyDallyRuntimeException;
 import me.rainma22.dillydally.sslcert.ACMEJWS;
 import me.rainma22.dillydally.sslcert.AuthChallengeResponse;
 import me.rainma22.dillydally.sslcert.JoseHttpRequest;
@@ -25,6 +28,7 @@ import me.rainma22.dillydally.sslcert.challengecompletion.ChallengeCompletor;
 import me.rainma22.dillydally.sslcert.challengecompletion.ChallengeCompletors;
 
 public class CompletingAuthorizationState implements CertificateGetterState {
+    private static Logger logger = LogManager.getLogger();
 
     private AuthChallengeResponse getAuthChallenge(CertificateGetterContext ctx, String authString)
             throws InterruptedException, ExecutionException, IOException {
@@ -47,7 +51,6 @@ public class CompletingAuthorizationState implements CertificateGetterState {
         URI challengeUri = URI.create(challengeUrl);
 
         return CompletableFuture.runAsync(() -> {
-
             String status = "";
             int nRetries = ctx.getConf().getSslCertificateConf().getnPollingRetries();
             long retry = 0;
@@ -66,6 +69,7 @@ public class CompletingAuthorizationState implements CertificateGetterState {
                             .POST(BodyPublishers.ofString(ACMEJWS.toString(jws)))
                             .build();
                     res = client.send(req, BodyHandlers.ofString());
+                    logger.info(res.body());
                     JSONObject obj = new JSONObject(res.body());
                     status = obj.get("status").toString();
                     retry = res.headers().firstValueAsLong("Retry-After").orElse(1);
@@ -74,11 +78,11 @@ public class CompletingAuthorizationState implements CertificateGetterState {
                 } catch (NumberFormatException nfe) {
                     retry = 1;
                 }
-            } while ((ResponseConstants.PENDING.equals(status) || ResponseConstants.PROCESSING.equals(status)
-                    || "409".equals(status))
+                logger.info("retry remaining: %d, uri: %s, status %s".formatted(nRetries, challengeUri, status));
+            } while (ResponseConstants.PENDING.equals(status)
                     && (nRetries-- >= 0));
-            if (!ResponseConstants.VALID.equals(status)) {
-                throw new RuntimeException(
+            if (!ResponseConstants.VALID.equals(status) && !ResponseConstants.PROCESSING.equals(status)) {
+                throw new DillyDallyRuntimeException(
                         "Unexpected Status when completing challenge" + challengeUrl + ": " + status);
             }
         });
@@ -97,35 +101,15 @@ public class CompletingAuthorizationState implements CertificateGetterState {
                     .orElseThrow(() -> new UnsupportedOperationException("only http-01 challenges supported for now"));
             if (ResponseConstants.PENDING.equals(http01Challenge.getStatus())) {
                 ChallengeCompletor completor = ChallengeCompletors.fromConf(conf);
-                ctx.getCleanups().add(completor.completeChallenge(http01Challenge, kp));
-                if (!isUriAccessible(URI.create(http01Challenge.getUrl()))) {
-                    throw new IOException(
-                            "Could not access acme-challenge uri, please properly configure the configuration json.");
-                }
+                var challengeCleanup = completor.completeChallenge(http01Challenge, kp);
+                ctx.getCleanups().add(challengeCleanup);
             }
             ctx.getCompletedChallenges().add(
                     submitChallenge(ctx, http01Challenge.getUrl()));
             return;
         } catch (Exception e) {
+            logger.warn(e);
             ctx.updateError(e);
         }
-    }
-
-    private boolean isUriAccessible(URI uri) {
-        try {
-            var client = HttpClient.newBuilder()
-                    .followRedirects(Redirect.ALWAYS)
-                    .build();
-            var req = HttpRequest.newBuilder(uri)
-                    .GET()
-                    .build();
-            return client.send(req, BodyHandlers.ofString())
-                    .statusCode() == 200;
-        } catch (IOException e) {
-            // ignored
-        } catch (InterruptedException e) {
-            // ignored
-        }
-        return false;
     }
 }

@@ -68,8 +68,17 @@ public class CertificateGetterContext {
             return new AuthorizationValidationState();
         if (!orderValidated)
             return new OrderValidationState();
-        if (orderValidated && sslKeyPair == null)
+        if (orderValidated && sslKeyPair == null) {
+            getCleanups().forEach(arg0 -> {
+                try {
+                    arg0.close();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            getCleanups().clear();
             return new RequestCertificateState();
+        }
         if (certChain == null)
             return new PollForCertificateState();
         return new CheckRenewalState();

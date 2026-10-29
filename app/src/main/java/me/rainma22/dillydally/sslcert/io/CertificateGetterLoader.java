@@ -12,6 +12,7 @@ import java.security.cert.CertificateException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.EncryptionException;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
@@ -48,9 +49,8 @@ public class CertificateGetterLoader {
             KeyPair kp = converter.getKeyPair(pkp);
             LOGGER.info("Loaded ACME keypair from file {}", acmeKeyPath);
             cGetter = new CertificateGetter(conf, kp);
-        } catch (FileNotFoundException | InterruptedException | NullPointerException e) {
-            LOGGER.warn("Could not load saved PEM key and certificate, will try to regenerate.");
-            LOGGER.warn(e);
+        } catch (FileNotFoundException | InterruptedException | NullPointerException | EncryptionException e) {
+            LOGGER.warn("Could not load saved PEM key and certificate, will try to regenerate.", e);
             cGetter = new CertificateGetter(conf);
         }
 

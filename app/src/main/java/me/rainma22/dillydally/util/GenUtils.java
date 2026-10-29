@@ -42,18 +42,27 @@ public class GenUtils {
                 new X500Principal(String.format("CN=%s", conf.getDomains().get(0))), keyPair.getPublic());
 
         ExtensionsGenerator extensionsGenerator = new ExtensionsGenerator();
-        if (conf.getDomains().size() > 1) {
-            var subDomains = conf.getDomains().subList(1, conf.getDomains().size());
-            extensionsGenerator.addExtension(Extension.subjectAlternativeName,
-                    false,
-                    new GeneralNames(
-                            subDomains.stream()
-                                    .map(domain -> new GeneralName(GeneralName.dNSName, domain))
-                                    .toArray(GeneralName[]::new)));
+        extensionsGenerator.addExtension(Extension.subjectAlternativeName,
+                false,
+                new GeneralNames(
+                        conf.getDomains().stream()
+                                .map(domain -> new GeneralName(GeneralName.dNSName, domain))
+                                .toArray(GeneralName[]::new)));
+        csrBuilder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest,
+        extensionsGenerator.generate());
 
-            csrBuilder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest,
-                    extensionsGenerator.generate());
-        }
+        // if (conf.getDomains().size() > 1) {
+        // var subDomains = conf.getDomains().subList(1, conf.getDomains().size());
+        // extensionsGenerator.addExtension(Extension.subjectAlternativeName,
+        // false,
+        // new GeneralNames(
+        // subDomains.stream()
+        // .map(domain -> new GeneralName(GeneralName.dNSName, domain))
+        // .toArray(GeneralName[]::new)));
+
+        // csrBuilder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest,
+        // extensionsGenerator.generate());
+        // }
 
         // Create a Content Signer for signing the CSR
         JcaContentSignerBuilder signerBuilder = new JcaContentSignerBuilder("SHA256withRSA");

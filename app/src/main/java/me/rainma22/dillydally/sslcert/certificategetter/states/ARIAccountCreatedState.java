@@ -8,15 +8,18 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
 import org.json.JSONObject;
 
 import me.rainma22.dillydally.conf.ConfBean;
+import me.rainma22.dillydally.exceptions.InvalidResponseException;
 import me.rainma22.dillydally.sslcert.ACMEJWS;
 import me.rainma22.dillydally.sslcert.JoseHttpRequest;
 import me.rainma22.dillydally.sslcert.NewOrderResponse;
 import me.rainma22.dillydally.sslcert.OrderIdentifier;
 import me.rainma22.dillydally.sslcert.ResourceLocationResponse;
 import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetterContext;
+import me.rainma22.dillydally.util.HttpStatus;
 import me.rainma22.dillydally.sslcert.ACMEHttpClient;
 
 public class ARIAccountCreatedState implements CertificateGetterState {
@@ -52,16 +55,19 @@ public class ARIAccountCreatedState implements CertificateGetterState {
 
             var res = client.send(req,
                     BodyHandlers.ofString());
-                        var orderLocation = res.headers().firstValue("Location").get();
-                        var newOrderResponse = JSONObject.fromJson(res.body(), NewOrderResponse.class);
-                        ctx.setOrderLocation(orderLocation);
-                        ctx.setOrderResponse(newOrderResponse);
-                        ctx.setOrderExpiry(LocalDateTime.from(
-                            DateTimeFormatter.ISO_DATE_TIME.parse(newOrderResponse.getExpires())
-                        ));
+            if (HttpStatus.isSuccess(res.statusCode())) {
+                var orderLocation = res.headers().firstValue("Location").get();
+                var newOrderResponse = JSONObject.fromJson(res.body(), NewOrderResponse.class);
+                ctx.setOrderLocation(orderLocation);
+                ctx.setOrderResponse(newOrderResponse);
+                ctx.setOrderExpiry(LocalDateTime.from(
+                        DateTimeFormatter.ISO_DATE_TIME.parse(newOrderResponse.getExpires())));
+            } else {
+                throw new InvalidResponseException(res.body());
+            }
         } catch (Exception e) {
             // fallback to normal AccountCreatedState before fully failling
-            // TODO: log the exception
+            LogManager.getLogger().warn(e);
             ctx.updateError(e);
         }
     }

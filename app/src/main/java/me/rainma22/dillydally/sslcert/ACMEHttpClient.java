@@ -8,8 +8,12 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
 import java.util.concurrent.CompletableFuture;
 
-public class ACMEHttpClient {
-    private final HttpClient client = HttpClient.newHttpClient();
+// import me.rainma22.dillydally.util.TestUtils;
+
+public class ACMEHttpClient implements AutoCloseable {
+    private final HttpClient client = HttpClient.newBuilder()
+            // .sslContext(TestUtils.TRUST_ALL_CONTEXT)
+            .build();
     private final ResourceLocationResponse resourceLocations;
     private String _nextNonce = null;
 
@@ -46,5 +50,10 @@ public class ACMEHttpClient {
         _nextNonce = res.headers().firstValue("Replay-Nonce")
                 .orElse(null);
         return res;
+    }
+
+    @Override
+    public void close() throws Exception {
+        client.close();
     }
 }

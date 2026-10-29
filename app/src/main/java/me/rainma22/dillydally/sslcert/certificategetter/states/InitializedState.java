@@ -6,14 +6,15 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
 import org.json.JSONObject;
 
 import io.jsonwebtoken.security.Jwks;
+import me.rainma22.dillydally.exceptions.DillyDallyRuntimeException;
 import me.rainma22.dillydally.sslcert.ACMEJWS;
 import me.rainma22.dillydally.sslcert.JoseHttpRequest;
 import me.rainma22.dillydally.sslcert.ResourceLocationResponse;
 import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetterContext;
-import me.rainma22.dillydally.sslcert.ACMEHttpClient;
 
 public class InitializedState implements CertificateGetterState {
 
@@ -21,21 +22,12 @@ public class InitializedState implements CertificateGetterState {
     public void handle(CertificateGetterContext ctx) {
         try {
             var kp = ctx.getAcmeKeyPair();
-            var conf = ctx.getConf();
-            ResourceLocationResponse resourceLocations;
-            try (var in = URI.create(conf.getServerUrl())
-                    .toURL().openStream()) {
-                resourceLocations = JSONObject.fromJson(
-                        new String(in.readAllBytes(),
-                                StandardCharsets.UTF_8),
-                        ResourceLocationResponse.class);
-                ctx.setResourceLocations(resourceLocations);
-            }
+            ResourceLocationResponse resourceLocations = ctx.getResourceLocations();
             // send new account request
             if (resourceLocations.getMeta().isExternalAccountRequired()) {
                 throw new UnsupportedOperationException("External Account not supported");
             }
-            var client = new ACMEHttpClient(resourceLocations);
+            var client = ctx.getClient();
             var jwk = Jwks.builder().key(kp.getPublic()).build();
             var jws = ACMEJWS.withJWK(jwk, client.nextNonce(), resourceLocations.getNewAccount(), kp.getPrivate());
             jws.content(new JSONObject(
@@ -48,6 +40,7 @@ public class InitializedState implements CertificateGetterState {
             var accountLocation = res.headers().firstValue("Location").get();
             ctx.setAccountLocation(accountLocation);
         } catch (Exception e) {
+            LogManager.getLogger().warn(e);
             ctx.updateError(e);
         }
     }

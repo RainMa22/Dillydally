@@ -9,6 +9,8 @@ import java.time.Duration;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import me.rainma22.dillydally.sslcert.ACMEJWS;
@@ -21,6 +23,7 @@ import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetterContext
  * OrderValidationState
  */
 public class OrderValidationState implements CertificateGetterState {
+    private static Logger logger = LogManager.getLogger();
 
     private CompletableFuture<HttpResponse<String>> getOrder(CertificateGetterContext ctx, String orderUrl)
             throws IOException, InterruptedException {
@@ -54,24 +57,28 @@ public class OrderValidationState implements CertificateGetterState {
                     // ignored
                 }
                 var orderRes2 = getOrder(ctx, orderLocation).get();
+                logger.info(orderRes2.body());
                 JSONObject obj = new JSONObject(orderRes2.body());
                 status = obj.getString("status");
                 if (ResponseConstants.INVALID.equals(status)) {
                     throw new IOException("Bad status: " + status);
                 }
                 try {
-                    waitTimeSec = orderRes2.headers().firstValueAsLong("Retry-After").getAsLong();
+                    waitTimeSec = Long.parseLong(orderRes2.headers().firstValue("Retry-After")
+                        .or(() -> orderRes2.headers().firstValue("Retry"))
+                        .get());
                 } catch (NoSuchElementException | NumberFormatException e) {
                     waitTimeSec = 1;
                 }
                 if (ResponseConstants.READY.equals(status)) {
-                    // orderValidationResponse = obj.fromJson(NewOrderResponse.class);
                     ctx.setOrderResponse(orderValidationResponse);
                     ctx.setOrderValidated(true);
+                    return;
                 }
             }
             throw new IOException("Out of retries while waiting to order to finish");
         } catch (Exception e) {
+            logger.warn(e);
             ctx.updateError(e);
         }
     }
