@@ -31,7 +31,7 @@ public class SSLSaver {
         LOGGER.info("Saving ssl keypair to file {}", sslKeyPath);
         Files.createDirectories(sslKeyPath.getParent());
         try (var sslKeyOut = new JcaPEMWriter(new FileWriter(sslKeyPath.toFile()))) {
-            PEMEncryptor encryptor = new JcePEMEncryptorBuilder("AES-256-CBC")
+            PEMEncryptor encryptor = new JcePEMEncryptorBuilder("AES-256-GCM")
                     .build(sslConf.getSslKeyPassword().toCharArray());
             sslKeyOut.writeObject(sslKeyPair.getPrivate(), encryptor);
         }
