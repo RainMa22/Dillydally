@@ -8,11 +8,12 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
 import java.util.concurrent.CompletableFuture;
 
+import me.rainma22.dillydally.builder.DillyDallyHttpClient;
+
 // import me.rainma22.dillydally.util.TestUtils;
 
 public class ACMEHttpClient implements AutoCloseable {
-    private final HttpClient client = HttpClient.newBuilder()
-            // .sslContext(TestUtils.TRUST_ALL_CONTEXT)
+    private final HttpClient client = DillyDallyHttpClient.newBuilder()
             .build();
     private final ResourceLocationResponse resourceLocations;
     private String _nextNonce = null;
