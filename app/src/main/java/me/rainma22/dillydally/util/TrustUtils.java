@@ -4,7 +4,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-public class TestUtils {
+public class TrustUtils {
     public static SSLContext TRUST_ALL_CONTEXT = null;
     static {
         TrustManager[] trustAll = {
