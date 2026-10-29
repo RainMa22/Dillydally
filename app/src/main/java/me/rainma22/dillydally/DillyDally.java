@@ -9,7 +9,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -26,13 +25,22 @@ import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 
 import me.rainma22.dillydally.conf.ConfBean;
+import me.rainma22.dillydally.exceptions.DillyDallyRuntimeException;
 import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetter;
 import me.rainma22.dillydally.sslcert.io.CertificateGetterLoader;
 import me.rainma22.dillydally.sslcert.io.CertificateGetterSaver;
+import me.rainma22.dillydally.util.LazyConstant;
 
 public class DillyDally {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final int BACKLOG = 8192;
+    private LazyConstant<SSLEngine> sslEngineSupply = new LazyConstant<>(() -> {
+        try {
+            return SSLContext.getDefault().createSSLEngine();
+        } catch (NoSuchAlgorithmException e) {
+            throw new DillyDallyRuntimeException(e);
+        }
+    });
     private ConfBean conf;
     private CertificateGetterLoader certGetterLoader;
 
@@ -43,7 +51,7 @@ public class DillyDally {
 
     private KeyStore initializeKeyStore()
             throws NoSuchAlgorithmException, CertificateException, IOException, KeyStoreException {
-                LOGGER.info("loading keyStore");
+        LOGGER.info("loading keyStore");
         KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
         ks.load(null, new char[0]);
         IOException exception;
@@ -96,7 +104,7 @@ public class DillyDally {
                 try {
                     // Initialise the SSL context
                     SSLContext c = SSLContext.getDefault();
-                    SSLEngine engine = c.createSSLEngine();
+                    SSLEngine engine = sslEngineSupply.get();
                     params.setNeedClientAuth(false);
                     params.setCipherSuites(engine.getEnabledCipherSuites());
                     params.setProtocols(engine.getEnabledProtocols());
