@@ -10,9 +10,9 @@ import org.apache.logging.log4j.LogManager;
 import org.json.JSONObject;
 
 import io.jsonwebtoken.security.Jwks;
+import me.rainma22.dillydally.builder.JoseHttpRequest;
 import me.rainma22.dillydally.exceptions.DillyDallyRuntimeException;
 import me.rainma22.dillydally.sslcert.ACMEJWS;
-import me.rainma22.dillydally.sslcert.JoseHttpRequest;
 import me.rainma22.dillydally.sslcert.ResourceLocationResponse;
 import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetterContext;
 

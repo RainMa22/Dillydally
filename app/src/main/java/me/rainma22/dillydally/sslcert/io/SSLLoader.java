@@ -2,6 +2,7 @@ package me.rainma22.dillydally.sslcert.io;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -29,8 +30,12 @@ public class SSLLoader {
 
     public X509Certificate[] loadSSLCertificates() throws IOException, CertificateException {
         var sslConf = conf.getSslCertificateConf();
-        LOGGER.info("Loading ssl certificate from {}", sslConf.getPathToSSLCertPEM());
-        try (PEMParser parser = new PEMParser(new FileReader(sslConf.getPathToSSLCertPEM()))) {
+        return loadSSLCertificates(Path.of(sslConf.getPathToSSLCertPEM()));
+    }
+
+    public X509Certificate[] loadSSLCertificates(Path certPath) throws IOException, CertificateException {
+        LOGGER.info("Loading ssl certificate from {}", certPath);
+        try (PEMParser parser = new PEMParser(new FileReader(certPath.toFile()))) {
             JcaX509CertificateConverter converter = new JcaX509CertificateConverter();
             Object obj;
             List<X509Certificate> certList = new ArrayList<>();
@@ -38,8 +43,8 @@ public class SSLLoader {
                 certList.add(converter.getCertificate((X509CertificateHolder) obj));
             }
             LOGGER.info("Loaded {} ssl certificate{} from {}", certList.size(),
-                    certList.size() == 1 ? "" : "s", 
-                    sslConf.getPathToSSLCertPEM());
+                    certList.size() == 1 ? "" : "s",
+                    certPath);
             return certList.stream().toArray(X509Certificate[]::new);
         }
     }

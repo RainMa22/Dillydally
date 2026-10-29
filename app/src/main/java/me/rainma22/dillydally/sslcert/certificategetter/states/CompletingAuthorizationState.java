@@ -14,8 +14,8 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import me.rainma22.dillydally.builder.JoseHttpRequest;
 import me.rainma22.dillydally.exceptions.DillyDallyRuntimeException;
-import me.rainma22.dillydally.factory.JoseHttpRequest;
 import me.rainma22.dillydally.sslcert.ACMEJWS;
 import me.rainma22.dillydally.sslcert.AuthChallengeResponse;
 import me.rainma22.dillydally.sslcert.OrderChallenge;
