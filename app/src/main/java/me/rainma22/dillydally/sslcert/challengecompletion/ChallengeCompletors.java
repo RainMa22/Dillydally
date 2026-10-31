@@ -1,19 +1,16 @@
 package me.rainma22.dillydally.sslcert.challengecompletion;
 
+import java.io.IOException;
+import java.security.KeyPair;
+
+import com.sun.net.httpserver.HttpServer;
+
+import io.jsonwebtoken.security.Jwks;
 import me.rainma22.dillydally.conf.ConfBean;
 import me.rainma22.dillydally.conf.SSLCertificateConfBean;
 import me.rainma22.dillydally.exceptions.ServerNotSetException;
 import me.rainma22.dillydally.exceptions.UnsupportedCompletorTypeException;
 import me.rainma22.dillydally.sslcert.OrderChallenge;
-
-import java.io.IOException;
-import java.security.KeyPair;
-
-import org.apache.logging.log4j.LogManager;
-
-import com.sun.net.httpserver.HttpServer;
-
-import io.jsonwebtoken.security.Jwks;
 
 public class ChallengeCompletors {
     private static HttpServer httpServer = null;

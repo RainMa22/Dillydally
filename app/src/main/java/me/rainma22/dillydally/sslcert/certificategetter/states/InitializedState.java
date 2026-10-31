@@ -3,7 +3,6 @@ package me.rainma22.dillydally.sslcert.certificategetter.states;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -11,7 +10,6 @@ import org.json.JSONObject;
 
 import io.jsonwebtoken.security.Jwks;
 import me.rainma22.dillydally.builder.JoseHttpRequest;
-import me.rainma22.dillydally.exceptions.DillyDallyRuntimeException;
 import me.rainma22.dillydally.sslcert.ACMEJWS;
 import me.rainma22.dillydally.sslcert.ResourceLocationResponse;
 import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetterContext;

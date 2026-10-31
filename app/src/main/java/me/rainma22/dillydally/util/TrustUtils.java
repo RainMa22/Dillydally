@@ -5,7 +5,6 @@ import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.stream.Stream;
 
-import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -21,23 +20,23 @@ public class TrustUtils {
                 new X509TrustManager() {
                     @Override
                     public void checkClientTrusted(
-                            java.security.cert.X509Certificate[] chain, String authType) {
+                            X509Certificate[] chain, String authType) {
                     }
 
                     @Override
                     public void checkServerTrusted(
-                            java.security.cert.X509Certificate[] chain, String authType) {
+                            X509Certificate[] chain, String authType) {
                     }
 
                     @Override
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return new java.security.cert.X509Certificate[0];
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return new X509Certificate[0];
                     }
                 }
         };
         try {
             TRUST_ALL_CONTEXT = SSLContext.getInstance("TLS");
-            TRUST_ALL_CONTEXT.init(null, trustAll, new java.security.SecureRandom());
+            TRUST_ALL_CONTEXT.init(null, trustAll, new SecureRandom());
         } catch (Exception e) {
             e.printStackTrace();
         }
