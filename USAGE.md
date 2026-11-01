@@ -8,6 +8,7 @@ Dillydally is a lightweight HTTP/HTTPS server with a pluggable handler system. Y
 
 1. [Quick Start](#quick-start)
 2. [Configuration Reference](#configuration-reference)
+   - [Testing ACME with a Custom CA](#testing-acme-with-a-custom-ca)
 3. [Handler Assignment Model](#handler-assignment-model)
 4. [Built-in Handlers](#built-in-handlers)
    - [FileHandler](#filehandler)
@@ -42,6 +43,7 @@ Dillydally is a lightweight HTTP/HTTPS server with a pluggable handler system. Y
 | `httpsPort` | `int` | `443` | HTTPS listen port |
 | `doHttps` | `boolean` | `true` | Enable HTTPS (requires certificate config) |
 | `serverUrl` | `string` | `"self-sign"` | `"self-sign"` or an ACME directory URL |
+| `extraCaCerts` | `string[]` | `[]` | Additional CA certificate PEM paths trusted by the outbound ACME HTTP client. See [Testing ACME with a Custom CA](#testing-acme-with-a-custom-ca). |
 | `domains` | `string[]` | `["localhost","127.0.0.1"]` | Domains for the TLS certificate |
 | `layoutScheme` | `object` | `{"/": {"FileHandler": {...}}}` | Path-to-handler mapping (see [Handler Assignment Model](#handler-assignment-model)) |
 | `sslCertificateConf` | `object` | *(see [SSL Certificate Config](#ssl-certificate-config))* | Certificate and ACME settings |
@@ -60,6 +62,45 @@ Dillydally is a lightweight HTTP/HTTPS server with a pluggable handler system. Y
 | `acmePassword` | `string` | *(randomly generated if not defined)* | ACME account password to encrypt/decrypt the PEM file |
 | `sslKeyPassword` | `string` | *(randomly generated if not defined)* | SSL key password to encrypt/decrypt the PEM file |
 
+
+### Testing ACME with a Custom CA
+
+DillyDally's outbound ACME client uses the JVM's default trust store. Test ACME servers such as Pebble or Boulder usually present certificates issued by a private or self-signed CA, so DillyDally must be told to trust that CA. The `extraCaCerts` setting does this without disabling certificate verification or changing the JVM-wide trust store.
+
+`extraCaCerts` is a top-level array of PEM file paths:
+
+```json
+{
+  "extraCaCerts": ["{path_to_ca_pem}"]
+}
+```
+
+Each file may contain one or more certificates. DillyDally adds every certificate whose Basic Constraints extension marks it as a CA; leaf certificates in the same file are ignored. The setting is additive — the normal JVM CA trust store remains active.
+
+Relative paths are resolved from DillyDally's working directory, the same as the PEM paths in `sslCertificateConf`.
+
+#### Example: Pebble
+
+1. Start Pebble and note its ACME directory URL. The default is usually `https://localhost:14000/dir`.
+2. Copy Pebble's CA certificate into your config directory, for example `config/pebble.minica.pem`. Pebble's repository includes this file at `test/certs/pebble.minica.pem`.
+3. Add the following fields to `config/config.json`:
+
+```json
+{
+  "serverUrl": "https://localhost:14000/dir",
+  "extraCaCerts": ["config/pebble.minica.pem"],
+  "domains": ["localhost"]
+}
+```
+
+4. Restart DillyDally and run the normal ACME flow. The HTTP-01 challenge requirements still apply; `extraCaCerts` only makes DillyDally trust the test server's CA.
+
+> **IMPORTANT NOTES**:
+> - This only affects DillyDally's outbound ACME HTTP client. It does not change the certificate DillyDally serves over HTTPS.
+> - Certificate verification remains enabled. If the required CA cannot be loaded, DillyDally logs a warning and skips it; the ACME connection then fails with a TLS error unless the server's certificate is already trusted by the default trust store.
+> - Changes to `extraCaCerts` require a restart.
+> - `extraCaCerts` is ignored when `serverUrl` is `"self-sign"`.
+> - Ensure that Pebble (or the ACME test server of your choice) is properly configured to test HTTP-01 Challenge on the `httpPort` configured by DillyDally; Otherwise the entire testing setup will definitely fail.
 
 ### Handler Assignment Model
 
@@ -269,6 +310,7 @@ Once the configuration is complete, you should be able to see your handler at wo
   "httpsPort": 443,
   "doHttps": true,
   "serverUrl": "self-sign",
+  "extraCaCerts": [],
   "domains": ["localhost", "127.0.0.1"],
   "extensionNamespaces": {"default": []},
   "enabledExtensions": [],
@@ -302,6 +344,8 @@ Once the configuration is complete, you should be able to see your handler at wo
 }
 ```
 
+To test against a local ACME server, set `serverUrl` and `extraCaCerts` as described in [Testing ACME with a Custom CA](#testing-acme-with-a-custom-ca).
+
 ---
 
 ## Notes / GOTCHAs
@@ -311,3 +355,4 @@ Once the configuration is complete, you should be able to see your handler at wo
 - The `layoutScheme` default serves the current working directory at `/` via `FileHandler`.
 - All handlers run on a virtual-thread-per-task executor (`Executors.newVirtualThreadPerTaskExecutor()`).
 - built-in handlers are referenced by their keyword("handler name") and not their canonical names.
+- `extraCaCerts` only affects DillyDally's outbound ACME client. Invalid paths or PEM files containing no CA certificates are logged and skipped; if the required CA is not loaded, ACME requests fail with a TLS error.
