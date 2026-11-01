@@ -30,6 +30,7 @@ public class ConfBean extends Bean {
     private Map<String, List<String>> extensionNamespaces = Map.of("default", List.of());
     private List<String> enabledExtensions = List.of();
     private ExtensionLoader _extensionLoader = null;
+    private List<String> extraCaCerts = List.of();
 
     public String getServerUrl() {
         return serverUrl;
@@ -144,5 +145,13 @@ public class ConfBean extends Bean {
 
     public void setEnabledExtensions(List<String> enabledExtensions) {
         this.enabledExtensions = enabledExtensions;
+    }
+
+    public List<String> getExtraCaCerts() {
+        return extraCaCerts;
+    }
+
+    public void setExtraCaCerts(List<String> extraCaCerts) {
+        this.extraCaCerts = extraCaCerts;
     }
 }

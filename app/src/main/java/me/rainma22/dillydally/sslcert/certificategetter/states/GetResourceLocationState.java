@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.json.JSONObject;
@@ -18,7 +19,7 @@ public class GetResourceLocationState implements CertificateGetterState {
     @Override
     public void handle(CertificateGetterContext ctx) {
         var conf = ctx.getConf();
-        try (HttpClient client = DillyDallyHttpClient.newBuilder()
+        try (HttpClient client = DillyDallyHttpClient.newBuilder(Optional.of(ctx.getConf()))
                 .build()) {
             var req = HttpRequest.newBuilder(URI.create(conf.getServerUrl()))
                     .GET()

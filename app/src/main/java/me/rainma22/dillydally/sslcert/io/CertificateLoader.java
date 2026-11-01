@@ -16,7 +16,12 @@ import org.bouncycastle.openssl.PEMParser;
 
 public class CertificateLoader {
     private static final Logger logger = LogManager.getLogger();
+
     public X509Certificate[] loadSSLCertificates(Path certPath) throws IOException, CertificateException {
+        return loadSSLCertificatesList(certPath).stream().toArray(X509Certificate[]::new);
+    }
+
+    public List<X509Certificate> loadSSLCertificatesList(Path certPath) throws IOException, CertificateException {
         logger.info("Loading ssl certificate from {}", certPath);
         try (PEMParser parser = new PEMParser(new FileReader(certPath.toFile()))) {
             JcaX509CertificateConverter converter = new JcaX509CertificateConverter();
@@ -28,8 +33,7 @@ public class CertificateLoader {
             logger.info("Loaded {} ssl certificate{} from {}", certList.size(),
                     certList.size() == 1 ? "" : "s",
                     certPath);
-            return certList.stream().toArray(X509Certificate[]::new);
+            return certList;
         }
     }
-
 }

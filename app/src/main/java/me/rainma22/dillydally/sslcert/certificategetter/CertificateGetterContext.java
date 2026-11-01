@@ -106,7 +106,7 @@ public class CertificateGetterContext {
 
     public void setResourceLocations(ResourceLocationResponse resourceLocations) {
         this.resourceLocations = resourceLocations;
-        this.client = new ACMEHttpClient(resourceLocations);
+        this.client = new ACMEHttpClient(conf, resourceLocations);
     }
 
     public String getAccountLocation() {
