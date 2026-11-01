@@ -43,11 +43,15 @@ public class DillyDallyHttpClient {
                     .filter(p -> p != null)
                     .forEach(path -> {
                         try {
-                            certLoader.loadSSLCertificatesList(path)
+                            var caCerts = certLoader.loadSSLCertificatesList(path)
                                     .stream()
                                     .filter(c -> c.getBasicConstraints() >= 0) // CA Cert check
-                                    .forEach(extraCaCerts::add);
-                        } catch (CertificateException | IOException | NoSuchElementException | ClassCastException e) {
+                                    .toList();
+                            if (caCerts.isEmpty()) {
+                                logger.warn("No valid CA certificates found for file {}, skipping", path);
+                            }
+                            extraCaCerts.addAll(caCerts);
+                        } catch (CertificateException | IOException | ClassCastException e) {
                             logger.warn("Error Loading Certificate from path %s, Skipping.".formatted(path), e);
                         }
                     });
