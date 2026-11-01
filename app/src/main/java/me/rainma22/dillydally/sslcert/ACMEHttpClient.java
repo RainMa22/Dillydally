@@ -6,20 +6,23 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import me.rainma22.dillydally.builder.DillyDallyHttpClient;
+import me.rainma22.dillydally.conf.ConfBean;
 
 // import me.rainma22.dillydally.util.TestUtils;
 
 public class ACMEHttpClient implements AutoCloseable {
-    private final HttpClient client = DillyDallyHttpClient.newBuilder()
-            .build();
+    private final HttpClient client;
     private final ResourceLocationResponse resourceLocations;
     private String _nextNonce = null;
 
-    public ACMEHttpClient(ResourceLocationResponse resourceLocations) {
+    public ACMEHttpClient(ConfBean conf, ResourceLocationResponse resourceLocations) {
         this.resourceLocations = resourceLocations;
+        client = DillyDallyHttpClient.newBuilder(Optional.of(conf))
+            .build();
     }
 
     public <T> HttpResponse<T> send(HttpRequest req, BodyHandler<T> handler) throws IOException, InterruptedException {
