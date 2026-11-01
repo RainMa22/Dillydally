@@ -13,34 +13,6 @@ import me.rainma22.dillydally.exceptions.DillyDallyException;
 import me.rainma22.dillydally.exceptions.DillyDallyRuntimeException;
 
 public class TrustUtils {
-    // public static SSLContext TRUST_ALL_CONTEXT = null;
-    // static {
-    //     TrustManager[] trustAll = {
-    //             new X509TrustManager() {
-    //                 @Override
-    //                 public void checkClientTrusted(
-    //                         X509Certificate[] chain, String authType) {
-    //                 }
-
-    //                 @Override
-    //                 public void checkServerTrusted(
-    //                         X509Certificate[] chain, String authType) {
-    //                 }
-
-    //                 @Override
-    //                 public X509Certificate[] getAcceptedIssuers() {
-    //                     return new X509Certificate[0];
-    //                 }
-    //             }
-    //     };
-    //     try {
-    //         TRUST_ALL_CONTEXT = SSLContext.getInstance("TLS");
-    //         TRUST_ALL_CONTEXT.init(null, trustAll, new SecureRandom());
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    // }
-
     public static SSLContext WithAdditionalCertificate(X509Certificate[] certs) {
         try {
             var tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
