@@ -3,6 +3,7 @@ package me.rainma22.dillydally.sslcert.certificategetter.states;
 import java.math.BigInteger;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
@@ -39,7 +40,7 @@ public class SelfSignState implements CertificateGetterState {
                         var domains = ctx.getConf().getDomains();
                         var name = new X500Name(String.format("CN=%s", ctx.getConf().getDomains().getFirst()));
                         var certBuilder = new JcaX509v3CertificateBuilder(name,
-                                        BigInteger.valueOf(System.currentTimeMillis()),
+                                        BigInteger.valueOf(System.currentTimeMillis()).add(BigInteger.valueOf(new SecureRandom().nextLong())),
                                         Date.from(Instant.now()),
                                         Date.from(Instant.now().plus(Duration.ofDays(3650))), name,
                                         sslKeyPair.getPublic())
@@ -57,7 +58,6 @@ public class SelfSignState implements CertificateGetterState {
                                                         Extension.subjectAlternativeName,
                                                         false,
                                                         new GeneralNames(domains.stream()
-                                                                        .skip(1)
                                                                         .map(str -> new GeneralName(GeneralName.dNSName,
                                                                                         str))
                                                                         .toArray(GeneralName[]::new)));
