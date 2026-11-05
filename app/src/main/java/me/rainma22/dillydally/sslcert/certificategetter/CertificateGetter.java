@@ -28,17 +28,27 @@ import me.rainma22.dillydally.util.GenUtils;
 /**
  *
  */
-public class CertificateGetter {
+class CertificateGetter implements CertificateGetterInterface {
         private CertificateGetterContext context;
         private ConfBean conf;
 
-        public CertificateGetter(ConfBean conf) throws IOException, InterruptedException, NoSuchAlgorithmException {
+        protected CertificateGetter(ConfBean conf) throws IOException, InterruptedException, NoSuchAlgorithmException {
                 this(conf, GenUtils.generateKeyPair());
         }
 
-        public CertificateGetter(ConfBean conf, KeyPair kp) throws IOException, InterruptedException {
+        protected CertificateGetter(ConfBean conf, KeyPair kp) throws IOException, InterruptedException {
                 this.conf = conf;
+                setACMEKeyPair(kp);
+        }
+
+        @Override
+        public void setACMEKeyPair(KeyPair kp) {
                 context = new CertificateGetterContext(kp, conf);
+        }
+
+        @Override
+        public KeyPair getACMEKeyPair() {
+                return context.getAcmeKeyPair();
         }
 
         public Pair<KeyPair, X509Certificate[]> getCert() {
@@ -60,10 +70,6 @@ public class CertificateGetter {
 
         private void nextState() {
                 context.getState().handle(context);
-        }
-
-        public KeyPair getKeyPair() {
-                return context.getAcmeKeyPair();
         }
 
         public static void main(String[] args) throws IOException, InterruptedException, NoSuchAlgorithmException,
@@ -91,7 +97,7 @@ public class CertificateGetter {
                 CertificateGetter certGetter = new CertificateGetter(config);
                 certGetter.getCert();
 
-                KeyPair acmeKeyPair = certGetter.getKeyPair();
+                KeyPair acmeKeyPair = certGetter.getACMEKeyPair();
                 Path pemPath = Path.of(sslConf.getPathToACMEPEM());
                 Files.createDirectories(pemPath.getParent());
 

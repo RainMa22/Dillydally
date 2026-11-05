@@ -26,7 +26,7 @@ import com.sun.net.httpserver.HttpsServer;
 
 import me.rainma22.dillydally.conf.ConfBean;
 import me.rainma22.dillydally.exceptions.DillyDallyRuntimeException;
-import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetter;
+import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetterInterface;
 import me.rainma22.dillydally.sslcert.io.CertificateGetterLoader;
 import me.rainma22.dillydally.sslcert.io.CertificateGetterSaver;
 import me.rainma22.dillydally.util.LazyConstant;
@@ -54,26 +54,20 @@ public class DillyDally {
         LOGGER.info("loading keyStore");
         KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
         ks.load(null, new char[0]);
-        IOException exception;
-        try {
-            CertificateGetter certGetter = certGetterLoader.loadCertGetter();
-            var finalState = certGetter.getCert();
-            var kp = finalState.getLeft();
-            var certs = finalState.getRight();
-            ks.setKeyEntry("entry", kp.getPrivate(), new char[0], certs);
-            Thread.ofVirtual().start(() -> {
-                try {
-                    new CertificateGetterSaver(conf).SaveToFile(certGetter);
-                } catch (IOException e) {
-                    LOGGER.warn("failed to save gotten certificate", e);
-                }
-            });
-            LOGGER.info("finished loading keyStore");
-            return ks;
-        } catch (NoSuchAlgorithmException | IOException | InterruptedException e) {
-            exception = new IOException(e);
-        }
-        throw exception;
+        CertificateGetterInterface certGetter = certGetterLoader.loadCertGetter();
+        var finalState = certGetter.getCert();
+        var kp = finalState.getLeft();
+        var certs = finalState.getRight();
+        ks.setKeyEntry("entry", kp.getPrivate(), new char[0], certs);
+        Thread.ofVirtual().start(() -> {
+            try {
+                new CertificateGetterSaver(conf).SaveToFile(certGetter);
+            } catch (IOException e) {
+                LOGGER.warn("failed to save gotten certificate", e);
+            }
+        });
+        LOGGER.info("finished loading keyStore");
+        return ks;
     }
 
     public HttpServer createHttp() throws IOException {

@@ -25,7 +25,6 @@ import me.rainma22.dillydally.sslcert.certificategetter.states.OrderCreatedState
 import me.rainma22.dillydally.sslcert.certificategetter.states.OrderValidationState;
 import me.rainma22.dillydally.sslcert.certificategetter.states.PollForCertificateState;
 import me.rainma22.dillydally.sslcert.certificategetter.states.RequestCertificateState;
-import me.rainma22.dillydally.sslcert.certificategetter.states.SelfSignState;
 
 public class CertificateGetterContext {
     // 1. get resource location
@@ -72,8 +71,6 @@ public class CertificateGetterContext {
     }
 
     public CertificateGetterState getState() {
-        if (conf.getServerUrl().equalsIgnoreCase(ConfBean.SELF_SIGN))
-            return new SelfSignState();
         if (resourceLocations == null)
             return new GetResourceLocationState();
         if (accountLocation == null)

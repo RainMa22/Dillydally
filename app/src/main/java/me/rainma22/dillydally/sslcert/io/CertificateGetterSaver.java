@@ -12,7 +12,7 @@ import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JcePEMEncryptorBuilder;
 
 import me.rainma22.dillydally.conf.ConfBean;
-import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetter;
+import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetterInterface;
 
 public class CertificateGetterSaver {
     private ConfBean conf;
@@ -23,8 +23,8 @@ public class CertificateGetterSaver {
         this.conf = conf;
     }
 
-    public void SaveToFile(CertificateGetter cg) throws IOException {
-        var acmeKeyPair = cg.getKeyPair();
+    public void SaveToFile(CertificateGetterInterface cg) throws IOException {
+        var acmeKeyPair = cg.getACMEKeyPair();
         var sslConf = conf.getSslCertificateConf();
         Path acmeKeyPath = Path.of(sslConf.getPathToACMEPEM());
         LOGGER.info("Saving to Certificate getter to file {}", acmeKeyPath);
