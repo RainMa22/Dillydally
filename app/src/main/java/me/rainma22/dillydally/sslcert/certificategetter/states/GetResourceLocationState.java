@@ -30,7 +30,7 @@ public class GetResourceLocationState implements CertificateGetterState {
                         resLocStr,
                         ResourceLocationResponse.class));
             } catch (Exception e) {
-                LogManager.getLogger().warn(e);
+                LogManager.getLogger().warn("Failed to get resource location due to:", e);
                 ctx.updateError(e);
             }
         }

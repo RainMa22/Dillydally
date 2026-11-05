@@ -97,6 +97,7 @@ public class SelfSignCertificateGetter implements CertificateGetterInterface {
             return Pair.of(sslKeyPair, cert);
         } catch (CertIOException | NoSuchAlgorithmException | OperatorCreationException
                 | CertificateException e) {
+            logger.warn("Error when creating self-signed certificate: ", e);
             throw new RuntimeException(e);
         }
     }
