@@ -1,29 +1,10 @@
 package me.rainma22.dillydally.sslcert.certificategetter;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.KeyPair;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
-import java.util.concurrent.ExecutionException;
-
 import org.apache.commons.lang3.tuple.Pair;
-import org.bouncycastle.openssl.PEMEncryptor;
-import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
-import org.bouncycastle.openssl.jcajce.JcePEMEncryptorBuilder;
-import org.bouncycastle.operator.OperatorCreationException;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import me.rainma22.dillydally.conf.ConfBean;
-import me.rainma22.dillydally.sslcert.io.SSLSaver;
-import me.rainma22.dillydally.util.GenUtils;
 
 /**
  *
