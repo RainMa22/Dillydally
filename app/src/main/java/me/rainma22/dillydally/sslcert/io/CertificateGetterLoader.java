@@ -34,11 +34,6 @@ public class CertificateGetterLoader {
         var sslConf = conf.getSslCertificateConf();
 
         var acmeKeyPath = Path.of(sslConf.getPathToACMEPEM());
-        /*
-         * TODO: the current approach causes the non-selfsign certificateGetter to generate a key
-         * even if there is already a ACME keypair in file.
-         * Wasted computing resources but definitely still usable.
-         */
         CertificateGetterFactory certGetterFactory = new CertificateGetterFactory().ofConf(conf);
 
         try (PEMParser parser = new PEMParser(new FileReader(acmeKeyPath.toFile()))) {

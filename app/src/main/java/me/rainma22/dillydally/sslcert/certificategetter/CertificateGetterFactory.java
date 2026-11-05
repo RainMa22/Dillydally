@@ -1,12 +1,8 @@
 package me.rainma22.dillydally.sslcert.certificategetter;
 
-import java.io.IOException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.function.Function;
-
 import me.rainma22.dillydally.conf.ConfBean;
 import me.rainma22.dillydally.util.GenUtils;
 
