@@ -16,7 +16,7 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 import me.rainma22.dillydally.conf.ConfBean;
 import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetterInterface;
-import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetterProvider;
+import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetterFactory;
 
 public class CertificateGetterLoader {
     private ConfBean conf;
@@ -34,7 +34,12 @@ public class CertificateGetterLoader {
         var sslConf = conf.getSslCertificateConf();
 
         var acmeKeyPath = Path.of(sslConf.getPathToACMEPEM());
-        CertificateGetterInterface cGetter = CertificateGetterProvider.provide(conf);
+        /*
+         * TODO: the current approach causes the non-selfsign certificateGetter to generate a key
+         * even if there is already a ACME keypair in file.
+         * Wasted computing resources but definitely still usable.
+         */
+        CertificateGetterInterface cGetter = CertificateGetterFactory.provide(conf);
 
         try (PEMParser parser = new PEMParser(new FileReader(acmeKeyPath.toFile()))) {
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter();

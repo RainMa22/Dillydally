@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 import me.rainma22.dillydally.conf.ConfBean;
 
-public class CertificateGetterProvider {
+public class CertificateGetterFactory {
     private static final HashMap<String, Function<ConfBean, CertificateGetterInterface>> providers = new HashMap<>(4);
     private static final Function<ConfBean, CertificateGetterInterface> DEFAULT_CERTIFICATE_GETTER_CONSTUCTOR = conf -> {
         try {
