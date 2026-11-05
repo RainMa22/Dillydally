@@ -39,7 +39,7 @@ public class CertificateGetterLoader {
          * even if there is already a ACME keypair in file.
          * Wasted computing resources but definitely still usable.
          */
-        CertificateGetterInterface cGetter = CertificateGetterFactory.provide(conf);
+        CertificateGetterFactory certGetterFactory = new CertificateGetterFactory().ofConf(conf);
 
         try (PEMParser parser = new PEMParser(new FileReader(acmeKeyPath.toFile()))) {
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
@@ -51,7 +51,7 @@ public class CertificateGetterLoader {
             var pkp = pekp.decryptKeyPair(decryptorProvider);
             KeyPair kp = converter.getKeyPair(pkp);
             LOGGER.info("Loaded ACME keypair from file {}", acmeKeyPath);
-            cGetter.setACMEKeyPair(kp);
+            certGetterFactory.withACMEKeyPair(kp);
         } catch (IOException | NullPointerException e) {
             LOGGER.warn("Could not load saved ACME PEM key, will try to regenerate.", e);
         }
@@ -62,12 +62,12 @@ public class CertificateGetterLoader {
             var certs = sslLoader.loadSSLCertificates();
             var kp = sslLoader.loadSSLKeyPair();
             // promote the state to completed if keys exists
-            cGetter.setCert(kp, certs);
+            certGetterFactory.withCertificate(kp, certs);
         } catch (CertificateException | IOException e) {
             LOGGER.warn("Problem loading Loading SSL key and cetificate", e);
         }
 
-        return cGetter;
+        return certGetterFactory.get();
     }
 
 }

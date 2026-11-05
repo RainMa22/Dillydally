@@ -38,11 +38,10 @@ public class SelfSignCertificateGetter implements CertificateGetterInterface {
 
     private KeyPair sslKeyPair = null;
     private X509Certificate[] cert = null;
-    private final ConfBean conf;
+    private ConfBean conf;
 
-    public SelfSignCertificateGetter(ConfBean conf) {
-        this.conf = conf;
-    }
+    protected SelfSignCertificateGetter() {
+    };
 
     @Override
     public KeyPair getACMEKeyPair() {
@@ -106,6 +105,11 @@ public class SelfSignCertificateGetter implements CertificateGetterInterface {
     public void setCert(KeyPair sslKeyPair, X509Certificate[] certs) {
         this.sslKeyPair = sslKeyPair;
         this.cert = certs;
+    }
+
+    @Override
+    public void setConf(ConfBean conf) {
+        this.conf = conf;
     }
 
 }

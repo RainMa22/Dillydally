@@ -1,31 +1,76 @@
 package me.rainma22.dillydally.sslcert.certificategetter;
 
 import java.io.IOException;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.function.Function;
 
 import me.rainma22.dillydally.conf.ConfBean;
+import me.rainma22.dillydally.util.GenUtils;
 
 public class CertificateGetterFactory {
-    private static final HashMap<String, Function<ConfBean, CertificateGetterInterface>> providers = new HashMap<>(4);
-    private static final Function<ConfBean, CertificateGetterInterface> DEFAULT_CERTIFICATE_GETTER_CONSTUCTOR = conf -> {
-        try {
-            return new CertificateGetter(conf);
-        } catch (NoSuchAlgorithmException | IOException | InterruptedException e) {
-            throw new Error(e);
-        }
-    };
-    static {
-        providers.put(ConfBean.SELF_SIGN, conf -> new SelfSignCertificateGetter(conf));
+    /**
+     * CertificateGetterType
+     */
+    public enum CertificateGetterType {
+        SELF_SIGN,
+        ACME
     }
 
-    public static CertificateGetterInterface getDefault(ConfBean conf) {
-        return DEFAULT_CERTIFICATE_GETTER_CONSTUCTOR.apply(conf);
+    private CertificateGetterType type = CertificateGetterType.ACME;
+    private ConfBean conf = null;
+    private KeyPair acmeKeyPair = null;
+    private KeyPair sslKeyPair = null;
+    private X509Certificate[] certs = null;
+
+    private CertificateGetterFactory ofType(String type) {
+        this.type = switch (type.toLowerCase()) {
+            case ConfBean.SELF_SIGN -> CertificateGetterType.SELF_SIGN;
+            default -> CertificateGetterType.ACME;
+        };
+        return this;
     }
 
-    public static CertificateGetterInterface provide(ConfBean conf) {
-        var name = conf.getServerUrl();
-        return providers.getOrDefault(name, DEFAULT_CERTIFICATE_GETTER_CONSTUCTOR).apply(conf);
+    /**
+     * Creates a CertificateGetterFactory
+     */
+    public CertificateGetterFactory() {
+    }
+
+    public CertificateGetterFactory ofConf(ConfBean conf) {
+        this.conf = conf;
+        return this.ofType(conf.getServerUrl());
+    }
+
+    public CertificateGetterFactory withACMEKeyPair(KeyPair acmeKeyPair) {
+        this.acmeKeyPair = acmeKeyPair;
+        return this;
+    }
+
+    public CertificateGetterFactory withCertificate(KeyPair sslKeyPair, X509Certificate[] certs) {
+        this.sslKeyPair = sslKeyPair;
+        this.certs = certs;
+        return this;
+    }
+
+    public CertificateGetterInterface get() {
+        if (type == null)
+            throw new IllegalStateException("no Type specified for CertificateGetterFactory");
+        if (conf == null)
+            throw new IllegalStateException("no ConfBean specified for CertificateGetterFactory");
+        if (acmeKeyPair == null && type.equals(CertificateGetterType.ACME))
+            try {
+                acmeKeyPair = GenUtils.generateKeyPair();
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException("Error when generating an acme keypair to create an acme CertificateGetter");
+            }
+        var res = (type.equals(CertificateGetterType.SELF_SIGN)) ? new SelfSignCertificateGetter()
+                : new CertificateGetter();
+        res.setConf(conf);
+        res.setACMEKeyPair(acmeKeyPair);
+        res.setCert(sslKeyPair, certs);
+        return res;
     }
 }

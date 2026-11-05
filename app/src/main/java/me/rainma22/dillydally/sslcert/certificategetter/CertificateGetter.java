@@ -32,13 +32,22 @@ class CertificateGetter implements CertificateGetterInterface {
         private CertificateGetterContext context;
         private ConfBean conf;
 
-        protected CertificateGetter(ConfBean conf) throws IOException, InterruptedException, NoSuchAlgorithmException {
-                this(conf, GenUtils.generateKeyPair());
+        protected CertificateGetter() {
         }
+        // protected CertificateGetter(ConfBean conf) throws IOException,
+        // InterruptedException, NoSuchAlgorithmException {
+        // this(conf, GenUtils.generateKeyPair());
+        // }
 
-        protected CertificateGetter(ConfBean conf, KeyPair kp) throws IOException, InterruptedException {
+        // protected CertificateGetter(ConfBean conf, KeyPair kp) throws IOException,
+        // InterruptedException {
+        // this.conf = conf;
+        // setACMEKeyPair(kp);
+        // }
+
+        @Override
+        public void setConf(ConfBean conf) {
                 this.conf = conf;
-                setACMEKeyPair(kp);
         }
 
         @Override
@@ -70,52 +79,6 @@ class CertificateGetter implements CertificateGetterInterface {
 
         private void nextState() {
                 context.getState().handle(context);
-        }
-
-        public static void main(String[] args) throws IOException, InterruptedException, NoSuchAlgorithmException,
-                        ExecutionException, OperatorCreationException, CertificateException,
-                        KeyStoreException {
-                final Path configDirPath = Path.of("config");
-                final Path configJson = configDirPath.resolve("config.json");
-                try {
-                        Files.createDirectories(configDirPath);
-                        Files.createFile(configJson);
-                } catch (Exception e) {
-                        // ignored
-                }
-                ConfBean config = new ConfBean();
-                try {
-                        config = JSONObject.fromJson(Files.readString(configJson), ConfBean.class);
-                } catch (JSONException je) {
-                        System.out.println("failed to load configuration json, default will be used instead");
-                        je.printStackTrace();
-                }
-
-                var sslConf = config.getSslCertificateConf();
-                Files.writeString(configJson, new JSONObject(config).toString(4), StandardCharsets.UTF_8);
-
-                CertificateGetter certGetter = new CertificateGetter(config);
-                certGetter.getCert();
-
-                KeyPair acmeKeyPair = certGetter.getACMEKeyPair();
-                Path pemPath = Path.of(sslConf.getPathToACMEPEM());
-                Files.createDirectories(pemPath.getParent());
-
-                try (JcaPEMWriter writer = new JcaPEMWriter(
-                                new FileWriter(Path.of(sslConf.getPathToACMEPEM()).toFile()))) {
-                        PEMEncryptor encryptor = new JcePEMEncryptorBuilder("AES-256-CBC")
-                                        .build(sslConf.getAcmePassword().toCharArray());
-                        writer.writeObject(acmeKeyPair, encryptor);
-                }
-
-                if (certGetter.context.getCertChain() != null) {
-                        var certPair = certGetter.getCert();
-                        KeyPair sslKeyPair = certPair.getLeft();
-                        var certs = certPair.getRight();
-                        new SSLSaver(config).SaveToFile(sslKeyPair, certs);
-                } else {
-                        throw new IOException(certGetter.context.getError());
-                }
         }
 
 }

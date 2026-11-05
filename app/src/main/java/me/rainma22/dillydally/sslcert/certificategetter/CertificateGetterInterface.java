@@ -5,6 +5,8 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import me.rainma22.dillydally.conf.ConfBean;
+
 public interface CertificateGetterInterface {
 
     Pair<KeyPair, X509Certificate[]> getCert();
@@ -13,4 +15,6 @@ public interface CertificateGetterInterface {
 
     void setACMEKeyPair(KeyPair kp);
     KeyPair getACMEKeyPair();
+
+    void setConf(ConfBean conf);
 }
