@@ -28,25 +28,41 @@ import me.rainma22.dillydally.sslcert.certificategetter.states.RequestCertificat
 import me.rainma22.dillydally.sslcert.certificategetter.states.SelfSignState;
 
 public class CertificateGetterContext {
-    private final KeyPair acmeKeyPair;
+    // 1. get resource location
     private ResourceLocationResponse resourceLocations = null;
-    private ACMEHttpClient client;
+    // 2. login using acmeKeypair create if not exists
+    private final KeyPair acmeKeyPair;
+    // 3. get account's URI (acme login name)
     private String accountLocation = null;
-    private String replaces = null;
-    private final ConfBean conf;
 
-    private KeyPair sslKeyPair = null;
-    private X509Certificate[] certChain = null;
-
+    // 4. create an Order on DNS names(set by conf);
     String orderLocation = null;
     private NewOrderResponse orderResponse = null;
     private LocalDateTime orderExpiry = null;
     private boolean orderValidated = false;
 
+    // 5. retrive authorizations required for the DNSnames
     private Deque<String> authorizationToDo = null;
-    private final List<CompletableFuture<?>> completedChallenges = new ArrayList<>();
+    // 6. complete the challenges(only HTTP-01 is supported currently) provided
+    private final List<CompletableFuture<?>> completedChallenges = new ArrayList<>();   
+    // 7. request certificate based on the ssl keypair given(generate if missing)
+    // ssl credentials for creating the certificate
+    private KeyPair sslKeyPair = null;
+    // 8. poll the server until the certificate is generated
+    // the ssl certificate
+    private X509Certificate[] certChain = null;    
+    
+    
+    // cleanups for challenge completion(removing temporary files, closing handlers, etc.)
     private final List<AutoCloseable> cleanups = new ArrayList<>(1);
+    // (ARI) optional string representing the old certificate to be replaced, if it exists.
+    private String replaces = null;    
+    // helper class: automated nonce-renewing client
+    private ACMEHttpClient client;
+    // configuration file
+    private final ConfBean conf;
 
+    // number of retries happened before returning
     private int numRetries = 0;
     private Exception error = new IOException("Not completed yet.");
 
