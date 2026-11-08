@@ -7,24 +7,14 @@ import org.apache.commons.lang3.tuple.Pair;
 import me.rainma22.dillydally.conf.ConfBean;
 
 /**
- *
+ * ACME-supporting certificate getter with state machine design
  */
-class CertificateGetter implements CertificateGetterInterface {
+class ACMECertificateGetter implements CertificateGetterInterface {
         private CertificateGetterContext context;
         private ConfBean conf;
 
-        protected CertificateGetter() {
+        protected ACMECertificateGetter() {
         }
-        // protected CertificateGetter(ConfBean conf) throws IOException,
-        // InterruptedException, NoSuchAlgorithmException {
-        // this(conf, GenUtils.generateKeyPair());
-        // }
-
-        // protected CertificateGetter(ConfBean conf, KeyPair kp) throws IOException,
-        // InterruptedException {
-        // this.conf = conf;
-        // setACMEKeyPair(kp);
-        // }
 
         @Override
         public void setConf(ConfBean conf) {

@@ -63,7 +63,7 @@ public class CertificateGetterFactory {
                 throw new RuntimeException("Error when generating an acme keypair to create an acme CertificateGetter");
             }
         var res = (type.equals(CertificateGetterType.SELF_SIGN)) ? new SelfSignCertificateGetter()
-                : new CertificateGetter();
+                : new ACMECertificateGetter();
         res.setConf(conf);
         res.setACMEKeyPair(acmeKeyPair);
         res.setCert(sslKeyPair, certs);
