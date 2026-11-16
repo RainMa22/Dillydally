@@ -18,7 +18,7 @@ import me.rainma22.dillydally.builder.JoseHttpRequest;
 import me.rainma22.dillydally.exceptions.DillyDallyRuntimeException;
 import me.rainma22.dillydally.sslcert.ACMEJWS;
 import me.rainma22.dillydally.sslcert.AuthChallengeResponse;
-import me.rainma22.dillydally.sslcert.OrderChallenge;
+import me.rainma22.dillydally.sslcert.OrderChallengeBean;
 import me.rainma22.dillydally.sslcert.ResponseConstants;
 import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetterContext;
 import me.rainma22.dillydally.sslcert.challengecompletion.ChallengeCompletor;
@@ -92,7 +92,7 @@ public class CompletingAuthorizationState implements CertificateGetterState {
         try {
             String authorizationLocation = ctx.getAuthorizationToDo().pollFirst();
             AuthChallengeResponse challengeResponse = getAuthChallenge(ctx, authorizationLocation);
-            OrderChallenge http01Challenge = challengeResponse.getChallenges().stream()
+            OrderChallengeBean http01Challenge = challengeResponse.getChallenges().stream()
                     .filter(chal -> chal.getType().equalsIgnoreCase("http-01"))
                     .findAny()
                     .orElseThrow(() -> new UnsupportedOperationException("only http-01 challenges supported for now"));

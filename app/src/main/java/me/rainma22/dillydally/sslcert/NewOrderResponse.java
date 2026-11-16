@@ -9,7 +9,7 @@ public class NewOrderResponse {
     String expires;
     String notBefore = null;
     String notAfter = null;
-    List<OrderIdentifier> identifiers;
+    List<OrderIdentifierBean> identifiers;
     List<String> authorizations;
     String finalize;
     String certificate = null;
@@ -47,11 +47,11 @@ public class NewOrderResponse {
         this.notAfter = notAfter;
     }
 
-    public List<OrderIdentifier> getIdentifiers() {
+    public List<OrderIdentifierBean> getIdentifiers() {
         return identifiers;
     }
 
-    public void setIdentifiers(List<OrderIdentifier> identifiers) {
+    public void setIdentifiers(List<OrderIdentifierBean> identifiers) {
         this.identifiers = identifiers;
     }
 

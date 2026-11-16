@@ -57,7 +57,9 @@ public class DillyDally {
         CertificateGetterInterface certGetter = certGetterLoader.loadCertGetter();
         var finalState = certGetter.getCert();
         var kp = finalState.getLeft();
+        LOGGER.info("kp: " + kp.toString());
         var certs = finalState.getRight();
+        LOGGER.info("kp: " + certs);
         ks.setKeyEntry("entry", kp.getPrivate(), new char[0], certs);
         Thread.ofVirtual().start(() -> {
             try {

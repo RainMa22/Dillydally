@@ -13,11 +13,11 @@ import org.json.JSONObject;
 
 import me.rainma22.dillydally.builder.JoseHttpRequest;
 import me.rainma22.dillydally.conf.ConfBean;
-import me.rainma22.dillydally.exceptions.InvalidResponseException;
+import me.rainma22.dillydally.exceptions.InvalidJSONResponseException;
 import me.rainma22.dillydally.sslcert.ACMEHttpClient;
 import me.rainma22.dillydally.sslcert.ACMEJWS;
 import me.rainma22.dillydally.sslcert.NewOrderResponse;
-import me.rainma22.dillydally.sslcert.OrderIdentifier;
+import me.rainma22.dillydally.sslcert.OrderIdentifierBean;
 import me.rainma22.dillydally.sslcert.ResourceLocationResponse;
 import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetterContext;
 import me.rainma22.dillydally.util.HttpStatus;
@@ -39,7 +39,7 @@ public class ARIAccountCreatedState implements CertificateGetterState {
             var identifiers = conf.getDomains()
                     .stream()
                     .map(str -> {
-                        var res = new OrderIdentifier();
+                        var res = new OrderIdentifierBean();
                         res.setType("dns");
                         res.setValue(str);
                         return res;
@@ -63,7 +63,7 @@ public class ARIAccountCreatedState implements CertificateGetterState {
                 ctx.setOrderExpiry(LocalDateTime.from(
                         DateTimeFormatter.ISO_DATE_TIME.parse(newOrderResponse.getExpires())));
             } else {
-                throw new InvalidResponseException(res.body());
+                throw new InvalidJSONResponseException(res.body());
             }
         } catch (Exception e) {
             // fallback to normal AccountCreatedState before fully failling

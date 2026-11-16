@@ -13,10 +13,10 @@ import org.json.JSONObject;
 
 import me.rainma22.dillydally.builder.JoseHttpRequest;
 import me.rainma22.dillydally.exceptions.DillyDallyRuntimeException;
-import me.rainma22.dillydally.exceptions.InvalidResponseException;
+import me.rainma22.dillydally.exceptions.InvalidJSONResponseException;
 import me.rainma22.dillydally.sslcert.ACMEJWS;
 import me.rainma22.dillydally.sslcert.NewOrderResponse;
-import me.rainma22.dillydally.sslcert.OrderIdentifier;
+import me.rainma22.dillydally.sslcert.OrderIdentifierBean;
 import me.rainma22.dillydally.sslcert.certificategetter.CertificateGetterContext;
 import me.rainma22.dillydally.util.HttpStatus;
 
@@ -33,7 +33,7 @@ public class AccountCreatedState implements CertificateGetterState {
                         var identifiers = ctx.getConf().getDomains()
                                         .stream()
                                         .map(str -> {
-                                                var res = new OrderIdentifier();
+                                                var res = new OrderIdentifierBean();
                                                 res.setType("dns");
                                                 res.setValue(str);
                                                 return res;
@@ -56,7 +56,7 @@ public class AccountCreatedState implements CertificateGetterState {
                                                 .from(DateTimeFormatter.ISO_DATE_TIME
                                                                 .parse(newOrderResponse.getExpires())));
                         } else {
-                                throw new InvalidResponseException("bad response: " + res.body());
+                                throw new InvalidJSONResponseException("bad response: " + res.body());
                         }
                 } catch (Exception e) {
                         logger.warn(e);

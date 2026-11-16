@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.json.JSONPropertyName;
 
-public class OrderChallenge {
+import me.rainma22.dillydally.abstracts.Bean;
+
+public class OrderChallengeBean extends Bean {
     private String type;
     private String url;
     private String status;

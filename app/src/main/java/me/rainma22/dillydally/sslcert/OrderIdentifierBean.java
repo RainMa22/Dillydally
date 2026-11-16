@@ -1,6 +1,8 @@
 package me.rainma22.dillydally.sslcert;
 
-public class OrderIdentifier {
+import me.rainma22.dillydally.abstracts.Bean;
+
+public class OrderIdentifierBean extends Bean {
     String type;
     String value;
 

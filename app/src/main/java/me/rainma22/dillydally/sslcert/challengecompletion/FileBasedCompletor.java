@@ -7,7 +7,7 @@ import java.security.KeyPair;
 
 import io.jsonwebtoken.security.Jwks;
 import me.rainma22.dillydally.conf.SSLCertificateConfBean;
-import me.rainma22.dillydally.sslcert.OrderChallenge;
+import me.rainma22.dillydally.sslcert.OrderChallengeBean;
 
 @Deprecated
 class FileBasedCompletor implements ChallengeCompletor {
@@ -24,7 +24,7 @@ class FileBasedCompletor implements ChallengeCompletor {
     }
 
     @Deprecated
-    public AutoCloseable completeChallenge(OrderChallenge challenge, KeyPair kp) throws IOException {
+    public AutoCloseable completeChallenge(OrderChallengeBean challenge, KeyPair kp) throws IOException {
         var challengeFolderPath = Path.of(httpConf.getPathToWebRootDir(), ".well-known",
                 "acme-challenge");
         Files.createDirectories(challengeFolderPath);

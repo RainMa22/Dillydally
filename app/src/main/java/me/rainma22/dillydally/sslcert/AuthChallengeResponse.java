@@ -5,8 +5,8 @@ import java.util.List;
 public class AuthChallengeResponse {
     private String status;
     private String expires;
-    private OrderIdentifier identifier;
-    private List<OrderChallenge> challenges;
+    private OrderIdentifierBean identifier;
+    private List<OrderChallengeBean> challenges;
 
     public String getStatus() {
         return status;
@@ -24,19 +24,19 @@ public class AuthChallengeResponse {
         this.expires = expires;
     }
 
-    public OrderIdentifier getIdentifier() {
+    public OrderIdentifierBean getIdentifier() {
         return identifier;
     }
 
-    public void setIdentifier(OrderIdentifier identifier) {
+    public void setIdentifier(OrderIdentifierBean identifier) {
         this.identifier = identifier;
     }
 
-    public List<OrderChallenge> getChallenges() {
+    public List<OrderChallengeBean> getChallenges() {
         return challenges;
     }
 
-    public void setChallenges(List<OrderChallenge> challenges) {
+    public void setChallenges(List<OrderChallengeBean> challenges) {
         this.challenges = challenges;
     }
 

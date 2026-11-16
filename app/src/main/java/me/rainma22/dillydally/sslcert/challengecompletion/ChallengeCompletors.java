@@ -3,6 +3,9 @@ package me.rainma22.dillydally.sslcert.challengecompletion;
 import java.io.IOException;
 import java.security.KeyPair;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.sun.net.httpserver.HttpServer;
 
 import io.jsonwebtoken.security.Jwks;
@@ -10,7 +13,7 @@ import me.rainma22.dillydally.conf.ConfBean;
 import me.rainma22.dillydally.conf.SSLCertificateConfBean;
 import me.rainma22.dillydally.exceptions.ServerNotSetException;
 import me.rainma22.dillydally.exceptions.UnsupportedCompletorTypeException;
-import me.rainma22.dillydally.sslcert.OrderChallenge;
+import me.rainma22.dillydally.sslcert.OrderChallengeBean;
 
 public class ChallengeCompletors {
     private static HttpServer httpServer = null;
@@ -52,6 +55,8 @@ public class ChallengeCompletors {
 }
 
 class HandlerBasedCompletor implements ChallengeCompletor {
+    private static final Logger logger = LogManager.getLogger();
+
     private HttpServer server;
 
     public HandlerBasedCompletor(HttpServer server) {
@@ -59,7 +64,7 @@ class HandlerBasedCompletor implements ChallengeCompletor {
     }
 
     @Override
-    public AutoCloseable completeChallenge(OrderChallenge challenge, KeyPair kp) throws IOException {
+    public AutoCloseable completeChallenge(OrderChallengeBean challenge, KeyPair kp) throws IOException {
         var challengeFolderPath = String.join("/", "", ".well-known",
                 "acme-challenge", challenge.getToken());
         var thumbprint = Jwks.builder().key(kp.getPublic()).build()
@@ -67,8 +72,8 @@ class HandlerBasedCompletor implements ChallengeCompletor {
                 .replaceAll("=", "");
         var content = challenge.getToken() + "." + thumbprint;
         byte[] data = content.getBytes();
-        // LogManager.getLogger().error(challengeFolderPath.toString());
         var ctx = server.createContext(challengeFolderPath, (req) -> {
+            logger.trace(challengeFolderPath + ": called");
             req.sendResponseHeaders(200, data.length);
             req.getResponseBody().write(data);
             req.close();
